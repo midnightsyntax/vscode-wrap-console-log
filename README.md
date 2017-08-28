@@ -1,5 +1,7 @@
 # Wrap Console Log
 
+![demo](images/screenshot.gif)
+
 
 ## No selection needed
 

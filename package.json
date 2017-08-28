@@ -1,7 +1,11 @@
 {
     "name": "vscode-wrap-console-log",
     "displayName": "Wrap Console Log",
-    "description": "Auto select and wrap console.log",
+    "description": "Wrap to console.log by word or selection",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
+    },
     "version": "1.0.0",
     "publisher": "midnightsyntax",
     "engines": {
