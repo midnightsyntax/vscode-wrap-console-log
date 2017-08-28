@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -16,7 +16,9 @@
         "Formatters"
     ],
     "keywords": [
-        "wrap", "console", "log"
+        "wrap",
+        "console",
+        "log"
     ],
     "activationEvents": [
         "onCommand:midnight.console.log.wrap.Inline",
@@ -32,37 +34,49 @@
             "title": "Wrap Console Log",
             "type": "object",
             "properties": {
+                "wrap-console-log.customPrefix": {
+                    "type": "boolean",
+                    "description": "Display an inputbox to specify custom prefix.",
+                    "default": false
+                },
                 "wrap-console-log.autoFormat": {
                     "type": "boolean",
-                    "description": "Set this to 'true' to automatically select and format lines created with Wrap [Up] and Wrap [Down]. After insert this mode creates a new selection (from the cursor position to one line below the next) and runs the command \"editor.action.formatSelection\"."
+                    "description": "Automatically try to format inserted lines.",
+                    "default": false
                 },
                 "wrap-console-log.formatDocument": {
                     "type": "boolean",
-                    "description": "Set this to 'true' to run \"editor.action.formatDocument\" after every Wrap."
+                    "description": "Run \"editor.action.formatDocument\" after every Wrap.",
+                    "default": false
                 }
             }
         },
-        "commands": [{
-            "command": "midnight.console.log.wrap.Inline",
-            "title": "Wrap 'console.log' [Inline]"
-        },{
-            "command": "midnight.console.log.wrap.Up",
-            "title": "Wrap 'console.log' [Up]"
-        },
-        {
-            "command": "midnight.console.log.wrap.Down",
-            "title": "Wrap 'console.log' [Down]"
-        },{
-            "command": "midnight.console.log.wrap.InlineArg",
-            "title": "Wrap 'console.log' [Inline] with argument"
-        },{
-            "command": "midnight.console.log.wrap.UpArg",
-            "title": "Wrap 'console.log' [Up] with argument"
-        },
-        {
-            "command": "midnight.console.log.wrap.DownArg",
-            "title": "Wrap 'console.log' [Down] with argument"
-        }],
+        "commands": [
+            {
+                "command": "midnight.console.log.wrap.Inline",
+                "title": "Wrap 'console.log' [Inline]"
+            },
+            {
+                "command": "midnight.console.log.wrap.Up",
+                "title": "Wrap 'console.log' [Up]"
+            },
+            {
+                "command": "midnight.console.log.wrap.Down",
+                "title": "Wrap 'console.log' [Down]"
+            },
+            {
+                "command": "midnight.console.log.wrap.InlineArg",
+                "title": "Wrap 'console.log' [Inline] with argument"
+            },
+            {
+                "command": "midnight.console.log.wrap.UpArg",
+                "title": "Wrap 'console.log' [Up] with argument"
+            },
+            {
+                "command": "midnight.console.log.wrap.DownArg",
+                "title": "Wrap 'console.log' [Down] with argument"
+            }
+        ],
         "keybindings": [
             {
                 "command": "midnight.console.log.wrap.Inline",
@@ -75,7 +89,8 @@
             {
                 "command": "midnight.console.log.wrap.Up",
                 "key": "ctrl+alt+w up"
-            },            {
+            },
+            {
                 "command": "midnight.console.log.wrap.InlineArg",
                 "key": "ctrl+alt+w ctrl+alt+w"
             },

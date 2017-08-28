@@ -62,10 +62,15 @@ function preWrap(withArg: boolean, editor: vscode.TextEditor) {
             let statObj = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
             
             if (withArg) {
-                vscode.window.showInputBox({placeHolder: 'log as', value: txt, prompt: 'Log with this'}).then((val) => {
-                    statObj.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                if (vscode.workspace.getConfiguration("wrap-console-log")["customPrefix"] == true) {
+                    vscode.window.showInputBox({placeHolder: 'log as', value: txt, prompt: 'Log with this'}).then((val) => {
+                        statObj.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                        resolve(statObj)
+                    })
+                } else {
+                    statObj.txt = "console.log('".concat(txt, "', ", txt ,");");
                     resolve(statObj)
-                })
+                }
             } else {
                 statObj.txt = "console.log(".concat(txt, ");");
                 resolve(statObj);
