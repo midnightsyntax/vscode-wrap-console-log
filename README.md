@@ -1,5 +1,8 @@
 # Wrap Console Log
 
+* Optimized for keyboard
+* Keeps code formated
+
 ![demo](images/screenshot.gif)
 
 
@@ -27,3 +30,27 @@ Press `Ctrl+Alt+W` and `Up` to wrap and put `console.log` on the line above.
 * `Ctrl+Alt+W` + `Down`
 
 Press `Ctrl+Alt+W` and `Down` to wrap and put `console.log` on the line below.
+
+---
+
+## Log with prefix
+
+![demo](images/screenshot2.gif)
+
+> ### Inline-Prefix
+
+*  `Ctrl+Alt+W` + `Ctrl+Alt+W`
+
+
+Press `Ctrl+Alt+W` and `Ctrl+Alt+W` to log with a prefix on the current line.
+
+>### Up-Prefix
+
+* `Ctrl+Alt+W` + `Ctrl+Alt+Up`
+
+Press `Ctrl+Alt+W` and `Ctrl+Alt+Up` to log with a prefix on the line above.
+
+>### Down-Prefix
+* `Ctrl+Alt+W` + `Ctrl+Alt+Down`
+
+Press `Ctrl+Alt+W` and `Ctrl+Alt+Down` to log with a prefix on the line below.

@@ -8,42 +8,84 @@
     },
     "version": "1.0.0",
     "publisher": "midnightsyntax",
+    "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.5.0"
     },
     "categories": [
         "Formatters"
     ],
+    "keywords": [
+        "wrap", "console", "log"
+    ],
     "activationEvents": [
-        "onCommand:midnight.console.log.Wrap.Inline",
-        "onCommand:midnight.console.log.Wrap.Up",
-        "onCommand:midnight.console.log.Wrap.Down"
+        "onCommand:midnight.console.log.wrap.Inline",
+        "onCommand:midnight.console.log.wrap.InlineArg",
+        "onCommand:midnight.console.log.wrap.Up",
+        "onCommand:midnight.console.log.wrap.UpArg",
+        "onCommand:midnight.console.log.wrap.Down",
+        "onCommand:midnight.console.log.wrap.DownArg"
     ],
     "main": "out/extension.js",
     "contributes": {
+        "configuration": {
+            "title": "Wrap Console Log",
+            "type": "object",
+            "properties": {
+                "wrap-console-log.autoFormat": {
+                    "type": "boolean",
+                    "description": "Set this to 'true' to automatically select and format lines created with Wrap [Up] and Wrap [Down]. After insert this mode creates a new selection (from the cursor position to one line below the next) and runs the command \"editor.action.formatSelection\"."
+                },
+                "wrap-console-log.formatDocument": {
+                    "type": "boolean",
+                    "description": "Set this to 'true' to run \"editor.action.formatDocument\" after every Wrap."
+                }
+            }
+        },
         "commands": [{
-            "command": "midnight.console.log.Wrap.Inline",
+            "command": "midnight.console.log.wrap.Inline",
             "title": "Wrap 'console.log' [Inline]"
         },{
-            "command": "midnight.console.log.Wrap.Up",
+            "command": "midnight.console.log.wrap.Up",
             "title": "Wrap 'console.log' [Up]"
         },
         {
-            "command": "midnight.console.log.Wrap.Down",
+            "command": "midnight.console.log.wrap.Down",
             "title": "Wrap 'console.log' [Down]"
+        },{
+            "command": "midnight.console.log.wrap.InlineArg",
+            "title": "Wrap 'console.log' [Inline] with argument"
+        },{
+            "command": "midnight.console.log.wrap.UpArg",
+            "title": "Wrap 'console.log' [Up] with argument"
+        },
+        {
+            "command": "midnight.console.log.wrap.DownArg",
+            "title": "Wrap 'console.log' [Down] with argument"
         }],
         "keybindings": [
             {
-                "command": "midnight.console.log.Wrap.Inline",
+                "command": "midnight.console.log.wrap.Inline",
                 "key": "ctrl+alt+w w"
             },
             {
-                "command": "midnight.console.log.Wrap.Down",
+                "command": "midnight.console.log.wrap.Down",
                 "key": "ctrl+alt+w down"
             },
             {
-                "command": "midnight.console.log.Wrap.Up",
+                "command": "midnight.console.log.wrap.Up",
                 "key": "ctrl+alt+w up"
+            },            {
+                "command": "midnight.console.log.wrap.InlineArg",
+                "key": "ctrl+alt+w ctrl+alt+w"
+            },
+            {
+                "command": "midnight.console.log.wrap.DownArg",
+                "key": "ctrl+alt+w ctrl+alt+down"
+            },
+            {
+                "command": "midnight.console.log.wrap.UpArg",
+                "key": "ctrl+alt+w ctrl+alt+up"
             }
         ]
     },
