@@ -9,8 +9,14 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    let cWrapArg= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlineArg', (editor, edit) => {
+    let cWrapPrefix= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefix', (editor, edit) => {
         preWrap(true, editor).then((val: WrapStat) => {
+            wrap('inline', editor, edit, val)
+        });
+    });
+    
+    let cWrapInput= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefixInput', (editor, edit) => {
+        preWrap(true, editor, true).then((val: WrapStat) => {
             wrap('inline', editor, edit, val)
         });
     });
@@ -21,8 +27,14 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    let cWrapUpArg = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpArg', (editor, edit)  => {
+    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefix', (editor, edit)  => {
         preWrap(true, editor).then((val: WrapStat) => {
+            wrap('up', editor, edit, val)
+        });
+    });
+
+    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefixInput', (editor, edit)  => {
+        preWrap(true, editor, true).then((val: WrapStat) => {
             wrap('up', editor, edit, val)
         });
     });
@@ -33,16 +45,22 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    let cWrapDownArg = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownArg', (editor, edit)  => {
+    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefix', (editor, edit)  => {
         preWrap(true, editor).then((val: WrapStat) => {
             wrap('down', editor, edit, val)
         });
     });
-    
-    context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapArg, cWrapDownArg, cWrapUpArg);
+
+    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefixInput', (editor, edit)  => {
+        preWrap(true, editor, true).then((val: WrapStat) => {
+            wrap('down', editor, edit, val)
+        });
+    });
+
+    context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix);
 }
 
-function preWrap(withArg: boolean, editor: vscode.TextEditor) {
+function preWrap(usePrefix: boolean, editor: vscode.TextEditor, useInput: boolean = false) {
     return new Promise((resolve, reject) => {
         let sel = editor.selection;
         let len = sel.end.character - sel.start.character;
@@ -61,11 +79,13 @@ function preWrap(withArg: boolean, editor: vscode.TextEditor) {
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
             let statObj = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
             
-            if (withArg) {
-                if (vscode.workspace.getConfiguration("wrap-console-log")["customPrefix"] == true) {
-                    vscode.window.showInputBox({placeHolder: 'log as', value: txt, prompt: 'Log with this'}).then((val) => {
-                        statObj.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
-                        resolve(statObj)
+            if (usePrefix || getSetting("alwaysUsePrefix")) {
+                if (getSetting("alwaysInputBoxOnPrefix") == true || useInput) {
+                    vscode.window.showInputBox({placeHolder: 'Prefix', value: txt, prompt: 'Use text from input box as prefix'}).then((val) => {
+                        if (val != undefined) {
+                            statObj.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                            resolve(statObj)
+                        }
                     })
                 } else {
                     statObj.txt = "console.log('".concat(txt, "', ", txt ,");");
@@ -77,6 +97,10 @@ function preWrap(withArg: boolean, editor: vscode.TextEditor) {
             }
         }
     })
+}
+
+function getSetting(setting: string) {
+    return vscode.workspace.getConfiguration("wrap-console-log")[setting]
 }
 
 function wrap(mode: string, editor: vscode.TextEditor, edit: vscode.TextEditorEdit, stat: WrapStat) {

@@ -22,11 +22,14 @@
     ],
     "activationEvents": [
         "onCommand:midnight.console.log.wrap.Inline",
-        "onCommand:midnight.console.log.wrap.InlineArg",
+        "onCommand:midnight.console.log.wrap.InlinePrefix",
+        "onCommand:midnight.console.log.wrap.InlinePrefixInput",
         "onCommand:midnight.console.log.wrap.Up",
-        "onCommand:midnight.console.log.wrap.UpArg",
+        "onCommand:midnight.console.log.wrap.UpPrefix",
+        "onCommand:midnight.console.log.wrap.UpPrefixInput",
         "onCommand:midnight.console.log.wrap.Down",
-        "onCommand:midnight.console.log.wrap.DownArg"
+        "onCommand:midnight.console.log.wrap.DownPrefix",
+        "onCommand:midnight.console.log.wrap.DownPrefixInput"
     ],
     "main": "out/extension.js",
     "contributes": {
@@ -34,19 +37,26 @@
             "title": "Wrap Console Log",
             "type": "object",
             "properties": {
-                "wrap-console-log.customPrefix": {
+                "wrap-console-log.alwaysInputBoxOnPrefix": {
                     "type": "boolean",
-                    "description": "Display an inputbox to specify custom prefix.",
+                    "title": "Always show input box when wrapping with a prefix",
                     "default": false
+                },"wrap-console-log.alwaysUsePrefix": {
+                        "type": "boolean",
+                        "title": "Always log with the wrapped word as prefix.",
+                        "description": "If this is set to 'true' even the \"non-prefix-commands\" will log with prefix.",
+                        "default": false
                 },
                 "wrap-console-log.autoFormat": {
                     "type": "boolean",
-                    "description": "Automatically try to format inserted lines.",
+                    "title": "[Experimental] Format inserted lines",
+                    "description": "When new lines has been created by wrapping Up or Down the extension will run \"editor.action.formatSelection\" on a selection with the new line and its line above and below.",
                     "default": false
                 },
                 "wrap-console-log.formatDocument": {
                     "type": "boolean",
-                    "description": "Run \"editor.action.formatDocument\" after every Wrap.",
+                    "title": "Format the document after every wrap",
+                    "description": "If this is set to 'true' the extension will run \"editor.action.formatDocument\" after every wrap.",
                     "default": false
                 }
             }
@@ -65,42 +75,75 @@
                 "title": "Wrap 'console.log' [Down]"
             },
             {
-                "command": "midnight.console.log.wrap.InlineArg",
-                "title": "Wrap 'console.log' [Inline] with argument"
+                "command": "midnight.console.log.wrap.InlinePrefix",
+                "title": "Wrap 'console.log' [Inline] [Prefix]"
             },
             {
-                "command": "midnight.console.log.wrap.UpArg",
-                "title": "Wrap 'console.log' [Up] with argument"
+                "command": "midnight.console.log.wrap.UpPrefix",
+                "title": "Wrap 'console.log' [Up] [Prefix]"
             },
             {
-                "command": "midnight.console.log.wrap.DownArg",
-                "title": "Wrap 'console.log' [Down] with argument"
+                "command": "midnight.console.log.wrap.DownPrefix",
+                "title": "Wrap 'console.log' [Down] [Prefix]"
+            },
+            {
+                "command": "midnight.console.log.wrap.InlinePrefixInput",
+                "title": "Wrap 'console.log' [Inline] [Prefix-Input]"
+            },
+            {
+                "command": "midnight.console.log.wrap.UpPrefixInput",
+                "title": "Wrap 'console.log' [Up] [Prefix-Input]"
+            },
+            {
+                "command": "midnight.console.log.wrap.DownPrefixInput",
+                "title": "Wrap 'console.log' [Down] [Prefix-Input]"
             }
         ],
         "keybindings": [
             {
                 "command": "midnight.console.log.wrap.Inline",
-                "key": "ctrl+alt+w w"
+                "key": "ctrl+alt+w w",
+                "when": "editorTextFocus"
             },
             {
                 "command": "midnight.console.log.wrap.Down",
-                "key": "ctrl+alt+w down"
+                "key": "ctrl+alt+w down",
+                "when": "editorTextFocus"
             },
             {
                 "command": "midnight.console.log.wrap.Up",
-                "key": "ctrl+alt+w up"
+                "key": "ctrl+alt+w up",
+                "when": "editorTextFocus"
             },
             {
-                "command": "midnight.console.log.wrap.InlineArg",
-                "key": "ctrl+alt+w ctrl+alt+w"
+                "command": "midnight.console.log.wrap.InlinePrefix",
+                "key": "ctrl+alt+w ctrl+alt+w",
+                "when": "editorTextFocus"
             },
             {
-                "command": "midnight.console.log.wrap.DownArg",
-                "key": "ctrl+alt+w ctrl+alt+down"
+                "command": "midnight.console.log.wrap.DownPrefix",
+                "key": "ctrl+alt+w ctrl+alt+down",
+                "when": "editorTextFocus"
             },
             {
-                "command": "midnight.console.log.wrap.UpArg",
-                "key": "ctrl+alt+w ctrl+alt+up"
+                "command": "midnight.console.log.wrap.UpPrefix",
+                "key": "ctrl+alt+w ctrl+alt+up",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "midnight.console.log.wrap.InlinePrefixInput",
+                "key": "ctrl+shift+alt+w ctrl+shift+alt+w",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "midnight.console.log.wrap.DownPrefixInput",
+                "key": "ctrl+shift+alt+w ctrl+shift+alt+down",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "midnight.console.log.wrap.UpPrefixInput",
+                "key": "ctrl+shift+alt+w ctrl+shift+alt+up",
+                "when": "editorTextFocus"
             }
         ]
     },
