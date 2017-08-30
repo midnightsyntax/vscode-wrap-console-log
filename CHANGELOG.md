@@ -17,7 +17,9 @@
 - New keybinding `ctrl+shift+alt+up ctrl+shift+alt+up`
 - New keybinding `ctrl+shift+alt+down ctrl+shift+alt+down`
 - Keybindings now have 'when' statements
+
 ### Changes
+
 - Renamed command `:UpArg` to `:UpPrefix`
 - Renamed command `:DownArg` to `:DownPrefix`
 - Renamed command `:InlineArg` to `:InlinePrefix`
@@ -25,6 +27,7 @@
 
 ### Removes
 - Test files
+
 ---
 
 ## 1.2.1 
