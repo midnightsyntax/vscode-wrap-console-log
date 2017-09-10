@@ -1,163 +1,147 @@
 'use strict';
 
 import * as vscode from 'vscode';
+
+let currentEditor:vscode.TextEditor;
+
 export function activate(context: vscode.ExtensionContext) {
 
-    let cWrap = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Inline', (editor, edit) => {
-        preWrap(false, editor).then((val: WrapStat) => {
-            wrap('inline', editor, edit, val)
-        });
-    });
+    currentEditor = vscode.window.activeTextEditor;
 
-    let cWrapPrefix= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefix', (editor, edit) => {
-        preWrap(true, editor).then((val: WrapStat) => {
-            wrap('inline', editor, edit, val)
-        });
-    });
-    
-    let cWrapInput= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefixInput', (editor, edit) => {
-        preWrap(true, editor, true).then((val: WrapStat) => {
-            wrap('inline', editor, edit, val)
-        });
-    });
+    vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
 
-    let cWrapUp = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Up', (editor, edit)  => {
-        preWrap(false, editor).then((val: WrapStat) => {
-            wrap('up', editor, edit, val)
-        });
-    });
-
-    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefix', (editor, edit)  => {
-        preWrap(true, editor).then((val: WrapStat) => {
-            wrap('up', editor, edit, val)
-        });
-    });
-
-    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefixInput', (editor, edit)  => {
-        preWrap(true, editor, true).then((val: WrapStat) => {
-            wrap('up', editor, edit, val)
-        });
-    });
-
-    let cWrapDown = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Down', (editor, edit)  => {
-        preWrap(false, editor).then((val: WrapStat) => {
-            wrap('down', editor, edit, val)
-        });
-    });
-
-    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefix', (editor, edit)  => {
-        preWrap(true, editor).then((val: WrapStat) => {
-            wrap('down', editor, edit, val)
-        });
-    });
-
-    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefixInput', (editor, edit)  => {
-        preWrap(true, editor, true).then((val: WrapStat) => {
-            wrap('down', editor, edit, val)
-        });
-    });
+    let cWrap = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Inline', (editor, edit) => handle(Wrap.Inline));
+    let cWrapPrefix= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefix', (editor, edit) => handle(Wrap.Inline, true));
+    let cWrapInput= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefixInput', (editor, edit) => handle(Wrap.Inline, true, true));
+    let cWrapUp = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Up', (editor, edit) => handle(Wrap.Up));
+    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefix', (editor, edit) => handle(Wrap.Up, true));
+    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefixInput', (editor, edit) => handle(Wrap.Up, true, true));
+    let cWrapDown = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Down', (editor, edit) => handle(Wrap.Down));
+    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefix', (editor, edit) => handle(Wrap.Down, true));
+    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefixInput', (editor, edit) => handle(Wrap.Down, true, true));
 
     context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix);
 }
 
-function preWrap(usePrefix: boolean, editor: vscode.TextEditor, useInput: boolean = false) {
-    return new Promise((resolve, reject) => {
-        let sel = editor.selection;
+function handle(target: Wrap, prefix?: boolean, input?: boolean) {
+
+    new Promise((resolve, reject) => {
+        let sel = currentEditor.selection;
         let len = sel.end.character - sel.start.character;
     
-        let ran = len == 0 ? editor.document.getWordRangeAtPosition(sel.anchor) : 
+        let ran = len == 0 ? currentEditor.document.getWordRangeAtPosition(sel.anchor) : 
             new vscode.Range(sel.start, sel.end);
     
         if (ran == undefined) {
-            resolve(null);
-        } else {
+            reject('NO_WORD');
+        }
+        else {
         
-            let doc = editor.document;
+            let doc = currentEditor.document;
             let lineNumber = ran.start.line;
             let txt = doc.getText(ran);
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
-            let statObj = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
+            let wrapData = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
             
-            if (usePrefix || getSetting("alwaysUsePrefix")) {
-                if (getSetting("alwaysInputBoxOnPrefix") == true || useInput) {
+            if (prefix || getSetting("alwaysUsePrefix")) {
+                if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
                     vscode.window.showInputBox({placeHolder: 'Prefix', value: txt, prompt: 'Use text from input box as prefix'}).then((val) => {
                         if (val != undefined) {
-                            statObj.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
-                            resolve(statObj)
+                            wrapData.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                            resolve(wrapData)
                         }
                     })
                 } else {
-                    statObj.txt = "console.log('".concat(txt, "', ", txt ,");");
-                    resolve(statObj)
+                    wrapData.txt = "console.log('".concat(txt, "', ", txt ,");");
+                    resolve(wrapData)
                 }
             } else {
-                statObj.txt = "console.log(".concat(txt, ");");
-                resolve(statObj);
+                wrapData.txt = "console.log(".concat(txt, ");");
+                resolve(wrapData);
             }
+        };
+
+    }).then((wrap:WrapData) => {
+
+        switch (target) {
+
+            case Wrap.Inline: {
+                currentEditor.edit(function(e) {
+                    e.replace(wrap.ran, wrap.txt);
+                }).then(() => {
+                    currentEditor.selection = new vscode.Selection(
+                        new vscode.Position(wrap.ran.start.line, wrap.txt.length + wrap.ran.start.character),
+                        new vscode.Position(wrap.ran.start.line, wrap.txt.length + wrap.ran.start.character)
+                    )
+                });
+            } break;
+        
+            case Wrap.Up: {
+                currentEditor.edit(function(e) {
+                    e.insert(new vscode.Position(wrap.line, wrap.idx), wrap.txt.concat('\n', wrap.ind));
+                });
+            } break;
+
+            case Wrap.Down: {
+
+                let nxtLine;
+                let nxtLineEmpty;
+
+                if (!wrap.lastLine) {
+                    nxtLine = wrap.doc.lineAt(wrap.line+1);
+                    nxtLineEmpty = nxtLine.text.trim() == '' ? true : false;
+                }
+
+                wrap.ind = vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true ? "" : wrap.ind;
+                let pos = new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character);
+                
+                currentEditor.edit(function(e) {
+                    currentEditor.edit(function(e) {
+                        if (nxtLineEmpty) {
+                            e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                        } else {
+                            e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat(wrap.ind, wrap.txt));
+                        }
+                    })
+                }).then(() => {
+                    if (vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true && !wrap.lastLine) {
+                        let nextLineEnd = wrap.doc.lineAt(wrap.line+2).range.end;
+                        currentEditor.selection = new vscode.Selection(wrap.sel.start, nextLineEnd)
+                        vscode.commands.executeCommand("currentEditor.action.formatSelection").then(() => {
+                            currentEditor.selection = wrap.sel;
+                        }, (err) => {
+                            vscode.window.showErrorMessage("'formatSelection' could not execute propertly");
+                            console.error(err);
+                        })
+                    } else {
+                        currentEditor.selection = wrap.sel;
+                    }
+                })
+            }
+
+            default:
+                break;
         }
+
+        if (vscode.workspace.getConfiguration("wrap-console-log")["formatDocument"] == true) {
+            vscode.commands.executeCommand("editor.action.formatDocument");   
+        }
+
     })
+    
+    
+    .catch(message => {
+        console.log('vscode-wrap-console REJECTED_PROMISE : ' + message);
+    });
+
 }
 
 function getSetting(setting: string) {
     return vscode.workspace.getConfiguration("wrap-console-log")[setting]
 }
 
-function wrap(mode: string, editor: vscode.TextEditor, edit: vscode.TextEditorEdit, stat: WrapStat) {
-    
-    if (mode == 'inline') {
-
-        editor.edit(function(e) {
-            e.replace(stat.ran, stat.txt);
-        }).then(() => {
-            editor.selection = new vscode.Selection(new vscode.Position(stat.ran.start.line, stat.txt.length + stat.ran.start.character), new vscode.Position(stat.ran.start.line, stat.txt.length + stat.ran.start.character))
-        }).then(() => {
-            formatIfNeeded();
-        })
-
-    } else if (mode == 'up') {
-        
-        editor.edit(function(e) {
-            e.insert(new vscode.Position(stat.line, stat.idx), stat.txt.concat('\n', stat.ind));
-        }).then(formatIfNeeded);
-
-    } else if (mode == 'down') {
-
-        if (!stat.lastLine) {
-            stat.ind = stat.doc.lineAt(stat.line+1).text.substring(0, stat.doc.lineAt(stat.line+1).firstNonWhitespaceCharacterIndex)
-        }
-
-        stat.ind = vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true ? "" : stat.ind;
-        let pos = new vscode.Position(stat.line, stat.doc.lineAt(stat.line).range.end.character);
-        editor.edit(function(e) {
-            editor.edit(function(e) {
-                e.insert(new vscode.Position(stat.line, stat.doc.lineAt(stat.line).range.end.character), "\n".concat(stat.ind, stat.txt));
-            }).then(formatIfNeeded);
-        }).then(() => {
-            if (vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true && !stat.lastLine) {
-                let nextLineEnd = stat.doc.lineAt(stat.line+2).range.end;
-                editor.selection = new vscode.Selection(stat.sel.start, nextLineEnd)
-                vscode.commands.executeCommand("editor.action.formatSelection").then(() => {
-                    editor.selection = stat.sel;
-                }, (err) => {
-                    vscode.window.showErrorMessage("'formatSelection' could not execute propertly");
-                    console.error(err);
-                })
-            } else {
-                editor.selection = stat.sel;
-            }
-        }).then(() => formatIfNeeded);
-        
-    }
-}
-
-function formatIfNeeded() {
-    if (vscode.workspace.getConfiguration("wrap-console-log")["formatDocument"] == true) {
-        vscode.commands.executeCommand("editor.action.formatDocument");   
-    }
-}
-
-interface WrapStat {
+interface WrapData {
     txt: string,
     sel: vscode.Selection,
     doc: vscode.TextDocument,
@@ -166,6 +150,12 @@ interface WrapStat {
     idx: number,
     line: number,
     lastLine: boolean
+}
+
+enum Wrap {
+    Inline,
+    Down,
+    Up
 }
 
 export function deactivate() {

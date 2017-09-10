@@ -2,6 +2,21 @@
 
 # CHANGELOG
 
+## 1.3.2
+##### 2017-09-10
+
+### Changed
+
+- `Wrap down` will now, if next line is empty, insert without creating a new line
+
+### Fixed
+
+- Indent break on wrap down
+- Wrap down fail to execute if no line exist below
+- Unhandled promise rejections
+
+---
+
 ## 1.3.1
 ##### 2017-08-30
 
@@ -27,14 +42,15 @@
 - New keybinding `ctrl+shift+alt+down ctrl+shift+alt+down`
 - Keybindings now have 'when' statements
 
-### Changes
+### Changed
 
 - Renamed command `:UpArg` to `:UpPrefix`
 - Renamed command `:DownArg` to `:DownPrefix`
 - Renamed command `:InlineArg` to `:InlinePrefix`
 - Some config settings titles/descriptions now make more sense
 
-### Removes
+### Removed
+
 - Test files
 
 ---
@@ -57,7 +73,8 @@
 - Extension icon image
 - New GIF screenshot
 
-### Changes
+### Changed
+
 - Package now specify extension keywords for the marketplace
 - README to make more sense
 
