@@ -87,10 +87,12 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
 
                 let nxtLine;
                 let nxtLineEmpty;
+                let nxtLineInd;
 
                 if (!wrap.lastLine) {
                     nxtLine = wrap.doc.lineAt(wrap.line+1);
                     nxtLineEmpty = nxtLine.text.trim() == '' ? true : false;
+                    nxtLineInd = nxtLine.text.substring(0, nxtLine.firstNonWhitespaceCharacterIndex);
                 }
 
                 wrap.ind = vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true ? "" : wrap.ind;
@@ -101,7 +103,8 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                         if (nxtLineEmpty) {
                             e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
                         } else {
-                            e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat(wrap.ind, wrap.txt));
+                            e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
+                            "\n".concat((nxtLineInd.length > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
                         }
                     })
                 }).then(() => {

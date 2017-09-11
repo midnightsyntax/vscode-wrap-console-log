@@ -2,17 +2,29 @@
 
 # CHANGELOG
 
+## 1.3.3
+##### 2017-09-11
+
+### Changed
+
+- `Wrap down` will now, if next line exists:
+    - Keep same indent as **current line** if next line indent is shorter.
+    - Use the same indent as **next line** if next line indent is longer.
+
+---
+
+
 ## 1.3.2
 ##### 2017-09-10
 
 ### Changed
 
-- `Wrap down` will now, if next line is empty, insert without creating a new line
+- `Wrap down` will now, if next line exists but is empty, insert without creating a new line
 
 ### Fixed
 
 - Indent break on wrap down
-- Wrap down fail to execute if no line exist below
+- `Wrap down` fail to execute if no line exist below
 - Unhandled promise rejections
 
 ---
