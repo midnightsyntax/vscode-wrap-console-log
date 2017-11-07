@@ -2,6 +2,23 @@
 
 # CHANGELOG
 
+## 1.4.0
+##### 2017-11-07
+
+### Changed
+
+- [Down] and [Up] will now create a new line by default. If the target line is empty you can now decide if you rather have 'console.log' replace the empty line. Set this behaviour with the new `.onEmptyLineAction` setting.
+
+### Added
+
+- New config setting `.onEmptyLineAction`
+- New config setting `.setCursorOnNewLine`
+
+By setting `.setCursorOnNewLine` to `true` the cursor will move to the new line when one is created by wrapping 'console.log' [Down] or [Up].
+
+
+---
+
 ## 1.3.3
 ##### 2017-09-11
 
@@ -12,7 +29,6 @@
     - Use the same indent as **next line** if next line indent is longer.
 
 ---
-
 
 ## 1.3.2
 ##### 2017-09-10

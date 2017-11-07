@@ -64,6 +64,33 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
 
     }).then((wrap:WrapData) => {
 
+        let onEmptyAction = getSetting("onEmptyLineAction");
+        let setCursor = getSetting("setCursorOnNewLine");
+
+        function SetCursor(l) {
+            let curp = new vscode.Position(l, currentEditor.document.lineAt(l).range.end.character);
+            currentEditor.selection = new vscode.Selection(curp, curp)
+        }
+
+        function getTargetLine(go: Wrap) {
+            let stop = false;
+            let li = wrap.line;
+            let l = 0;
+            while (!stop) {
+                if (go == Wrap.Down) {
+                    li++;
+                } else { li-- }
+                if (li < wrap.doc.lineCount) {
+                    if (!wrap.doc.lineAt(li).isEmptyOrWhitespace) {
+                        l = li; stop = true;
+                    }
+                } else {
+                    stop = true;
+                }
+            }
+            return li;
+        }
+
         switch (target) {
 
             case Wrap.Inline: {
@@ -78,20 +105,31 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
             } break;
         
             case Wrap.Up: {
+
+                let tLine = wrap.doc.lineAt(wrap.line-1);
+                let tLineEmpty = tLine.text.trim() == '' ? true : false;
+                let tLineInd = tLine.text.substring(0, tLine.firstNonWhitespaceCharacterIndex);
+
                 currentEditor.edit(function(e) {
-                    e.insert(new vscode.Position(wrap.line, wrap.idx), wrap.txt.concat('\n', wrap.ind));
+                    if (tLineEmpty && onEmptyAction == "Replace") {
+                        e.replace(new vscode.Position(tLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                    } else {
+                        e.insert(new vscode.Position(wrap.line, wrap.idx), wrap.txt.concat('\n', wrap.ind));
+                    }
+                }).then(() => {
+                    if (setCursor) SetCursor(wrap.line);
                 });
             } break;
 
             case Wrap.Down: {
 
                 let nxtLine: vscode.TextLine;
-                let nxtLineEmpty: boolean;
                 let nxtLineInd: string;
+                let nxtNonEmpty: vscode.TextLine
 
                 if (!wrap.lastLine) {
                     nxtLine = wrap.doc.lineAt(wrap.line+1);
-                    nxtLineEmpty = nxtLine.text.trim() == '' ? true : false;
+                    nxtNonEmpty = (nxtLine.isEmptyOrWhitespace) ? wrap.doc.lineAt(getTargetLine(Wrap.Down)) : undefined;
                     nxtLineInd = nxtLine.text.substring(0, nxtLine.firstNonWhitespaceCharacterIndex);
                 } else {
                     nxtLineInd = "";
@@ -101,14 +139,18 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                 let pos = new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character);
                 
                 currentEditor.edit(function(e) {
-                    currentEditor.edit(function(e) {
-                        if (nxtLineEmpty) {
-                            e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                    if (nxtLine != undefined) {
+                        if (nxtLine.isEmptyOrWhitespace) {
+                            if (onEmptyAction == "Insert") {
+                                e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
+                            } else if (onEmptyAction == "Replace") {
+                                e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                            }
                         } else {
                             e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
                             "\n".concat((nxtLineInd.length > wrap.ind.length ? nxtLineInd : wrap.ind), wrap.txt));
                         }
-                    })
+                    }
                 }).then(() => {
                     if (vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true && !wrap.lastLine) {
                         let nextLineEnd = wrap.doc.lineAt(wrap.line+2).range.end;
@@ -122,6 +164,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                     } else {
                         currentEditor.selection = wrap.sel;
                     }
+                    if (setCursor) SetCursor(nxtLine.lineNumber);
                 })
             }
 
