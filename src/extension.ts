@@ -1,6 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import { window, QuickPickItem, workspace } from 'vscode';
 
 let currentEditor:vscode.TextEditor;
 
@@ -10,17 +11,25 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
 
-    let cWrap = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Inline', (editor, edit) => handle(Wrap.Inline));
-    let cWrapPrefix= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefix', (editor, edit) => handle(Wrap.Inline, true));
-    let cWrapInput= vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.InlinePrefixInput', (editor, edit) => handle(Wrap.Inline, true, true));
-    let cWrapUp = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Up', (editor, edit) => handle(Wrap.Up));
-    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefix', (editor, edit) => handle(Wrap.Up, true));
-    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.UpPrefixInput', (editor, edit) => handle(Wrap.Up, true, true));
-    let cWrapDown = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.Down', (editor, edit) => handle(Wrap.Down));
-    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefix', (editor, edit) => handle(Wrap.Down, true));
-    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('midnight.console.log.wrap.DownPrefixInput', (editor, edit) => handle(Wrap.Down, true, true));
+    let cWrap = vscode.commands.registerTextEditorCommand('console.log.wrap', (editor, edit) => handle(Wrap.Inline));
+    let cWrapPrefix= vscode.commands.registerTextEditorCommand('console.log.wrap.prefix', (editor, edit) => handle(Wrap.Inline, true));
+    let cWrapInput= vscode.commands.registerTextEditorCommand('console.log.wrap.input', (editor, edit) => handle(Wrap.Inline, true, true));
+    let cWrapUp = vscode.commands.registerTextEditorCommand('console.log.wrap.up', (editor, edit) => handle(Wrap.Up));
+    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('console.log.wrap.up.prefix', (editor, edit) => handle(Wrap.Up, true));
+    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('console.log.wrap.up.input', (editor, edit) => handle(Wrap.Up, true, true));
+    let cWrapDown = vscode.commands.registerTextEditorCommand('console.log.wrap.down', (editor, edit) => handle(Wrap.Down));
+    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('console.log.wrap.down.prefix', (editor, edit) => handle(Wrap.Down, true));
+    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('console.log.wrap.down.input', (editor, edit) => handle(Wrap.Down, true, true));
+    let cSettings = vscode.commands.registerTextEditorCommand('console.log.settings', (editor, edit) => editSettings());
+    
+    context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix, cSettings);
+}
 
-    context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix);
+function editSettings() {
+    let items:QuickPickItem[] = []
+    let u = new vscode.Uri();
+    let t = workspace.openTextDocument(u)
+    window.showQuickPick(items)
 }
 
 function handle(target: Wrap, prefix?: boolean, input?: boolean) {
@@ -43,7 +52,6 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
             let wrapData = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
-            
             if (prefix || getSetting("alwaysUsePrefix")) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
                     vscode.window.showInputBox({placeHolder: 'Prefix', value: txt, prompt: 'Use text from input box as prefix'}).then((val) => {
@@ -68,8 +76,26 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
         let setCursor = getSetting("setCursorOnNewLine");
 
         function SetCursor(l) {
-            let curp = new vscode.Position(l, currentEditor.document.lineAt(l).range.end.character);
-            currentEditor.selection = new vscode.Selection(curp, curp)
+
+            let tpos;
+            switch (getSetting('cursorPositionNewLine')) {
+        
+                case 'Same':
+                    tpos = new vscode.Position(l, currentEditor.selection.anchor.character);
+                    break;
+            
+                case 'Right':
+                    tpos = new vscode.Position(l, currentEditor.document.lineAt(l).range.end.character);
+                    break;
+
+                case 'Left':
+                    tpos = new vscode.Position(l, currentEditor.document.lineAt(l).range.start.character);
+                    break;
+
+                default:
+                    break;
+            }
+            currentEditor.selection = new vscode.Selection(tpos, tpos)
         }
 
         function getTargetLine(go: Wrap) {
@@ -106,7 +132,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
         
             case Wrap.Up: {
 
-                let tLine = wrap.doc.lineAt(wrap.line-1);
+                let tLine = wrap.doc.lineAt(wrap.line == 0 ? 0 : wrap.line-1);
                 let tLineEmpty = tLine.text.trim() == '' ? true : false;
                 let tLineInd = tLine.text.substring(0, tLine.firstNonWhitespaceCharacterIndex);
 
@@ -139,20 +165,21 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                 let pos = new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character);
                 
                 currentEditor.edit(function(e) {
-                    if (nxtLine != undefined) {
-                        if (nxtLine.isEmptyOrWhitespace) {
-                            if (onEmptyAction == "Insert") {
-                                e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
-                            } else if (onEmptyAction == "Replace") {
-                                e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
-                            }
-                        } else {
-                            e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
-                            "\n".concat((nxtLineInd.length > wrap.ind.length ? nxtLineInd : wrap.ind), wrap.txt));
+                    if (wrap.lastLine == false && nxtLine.isEmptyOrWhitespace) {
+                        if (onEmptyAction == "Insert") {
+                            e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
+                        } else if (onEmptyAction == "Replace") {
+                            e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
                         }
+                    } else {
+                        e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
+                        "\n".concat((nxtLineInd.length > wrap.ind.length ? nxtLineInd : wrap.ind), wrap.txt));
                     }
                 }).then(() => {
-                    if (vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true && !wrap.lastLine) {
+                    if (nxtLine == undefined) {
+                        nxtLine = wrap.doc.lineAt(wrap.line+1);
+                    }
+                    if (getSetting("autoFormat") == true && !wrap.lastLine) {
                         let nextLineEnd = wrap.doc.lineAt(wrap.line+2).range.end;
                         currentEditor.selection = new vscode.Selection(wrap.sel.start, nextLineEnd)
                         vscode.commands.executeCommand("currentEditor.action.formatSelection").then(() => {
@@ -172,14 +199,11 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                 break;
         }
 
-        if (vscode.workspace.getConfiguration("wrap-console-log")["formatDocument"] == true) {
+        if (getSetting("formatDocument") == true) {
             vscode.commands.executeCommand("editor.action.formatDocument");   
         }
 
-    })
-    
-    
-    .catch(message => {
+    }).catch(message => {
         console.log('vscode-wrap-console REJECTED_PROMISE : ' + message);
     });
 
