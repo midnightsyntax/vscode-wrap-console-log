@@ -91,7 +91,7 @@ Also, you are free to rebind all keyboard shortcuts as you want in your workspac
 ---
 
 ### Insert **up**
-*Insert console.log on the line below*
+*Insert console.log on the line above*
 
 > ### Up
 
