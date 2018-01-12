@@ -2,26 +2,51 @@
 
 This extension wraps the word near your cursor and replaces it as an argument for `console.log`.
 
-If needed you can log with a __prefix__ generated from the selected variable _or_ specify your own in an input box.
-
-
 ## Key features
+
+* Optimized for keyboard use
 * No selection needed
 * Wrap and replace for fast logging
-* Optimized for keyboard use (less mouse)
-* Keeps the indent when inserting lines
-* Can log variables both with and without prefixed text
-* Wrap and logs selected text if needed
+* Doesn't break indent
+* Can log variables with and without prefixed text
+* Supports custom prefix
 
-![demo](images/screenshot.gif)
+> ### Type the variable to log
+![demo](images/screenshot_inline_replace.gif)
+
+> ### Log the variable on cursor
+![demo](images/screenshot_log_cursor.gif)
+
+> ### Type and log it as a string
+![demo](images/screenshot_inline_string.gif)
+
+> ### Keep your indents
+![demo](images/screenshot_indent.gif)
+
+> ### Use custom prefix
+![demo](images/screenshot_custom_prefix.gif)
+
+The fastest way to log your variables! Type it and press `Ctrl+Alt+W` + `W`.
+
+Another way to `console.log` your variables is to simply place your **mouse cursor** on them and then wrap them on the line below with `Ctrl+Alt+W` + `Down` or the line above with `Ctrl+Alt+W` + `Up`.
+
+Does the keyboard shortcuts seem to complex? Don't worry, they feel way more comfortable than they look. :)
+
+Also, you are free to rebind all keyboard shortcuts as you want in your workspace and user settings files. :)
+
+
+## Keyboard shortcuts
+
+> ### Log as string
+*Replace the word on your cursor or the selected text*
+
+*  `Ctrl+Alt+W` + `W`
 
 ---
 
-## Wrap and replace
-
-### _Quick log on the same line_
-
-> ### Inline
+### Log on current line
+*Replace the variable on the mouse cursor*
+> ### Wrap and replace
 
 *  `Ctrl+Alt+W` + `W`
 
@@ -34,18 +59,10 @@ If needed you can log with a __prefix__ generated from the selected variable _or
 
 *  `Ctrl+Shift+Alt+W` + `Ctrl+Shift+Alt+W`
 
-
-These commands will replace with `console.log` on the same line.
-
-Use input box if you want to specify a custom prefix.
-
 ---
 
-![demo](images/screenshot2.gif)
-
-## Insert **down**
-
-### _Log on the next line_
+### Insert **down**
+*Insert console.log on the line below*
 
 > ### Down
 
@@ -60,16 +77,10 @@ Use input box if you want to specify a custom prefix.
 
 *  `Ctrl+Shift+Alt+W` + `Ctrl+Shift+Alt+Down`
 
-
-These commands will insert `console.log` on a new line below.
-
-
 ---
 
-
-## Insert **up**
-
-### _Log on the line above_
+### Insert **up**
+*Insert console.log on the line below*
 
 > ### Up
 
@@ -84,5 +95,3 @@ These commands will insert `console.log` on a new line below.
 
 *  `Ctrl+Shift+Alt+W` + `Ctrl+Shift+Alt+Up`
 
-
-These commands will insert `console.log` on a new line above.

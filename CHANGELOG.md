@@ -2,6 +2,25 @@
 
 # CHANGELOG
 
+## 1.5.0
+##### 2018-01-12
+
+### Added
+- New command `wrap.string`
+- New command `wrap.string.up`
+- New command `wrap.string.down`
+
+### Fixed
+- Fail to log down bugs
+
+It is now possible to log what you type as text. Check out the new feature in the updated README.md.
+
+If you like this extensioin or have any suggestion or bug you found please hit me up on github and/or drop a rating/review on the marketplace. :)
+
+Happy coding!
+
+---
+
 ## 1.4.0
 ##### 2017-11-07
 

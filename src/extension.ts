@@ -12,6 +12,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
 
     let cWrap = vscode.commands.registerTextEditorCommand('console.log.wrap', (editor, edit) => handle(Wrap.Inline));
+    let cWrapString = vscode.commands.registerTextEditorCommand('console.log.wrap.string', (editor, edit) => handle(Wrap.Inline, false, false, FormatAs.String));
+    let cWrapStringUp = vscode.commands.registerTextEditorCommand('console.log.wrap.string.up', (editor, edit) => handle(Wrap.Up, false, false, FormatAs.String));
+    let cWrapStringDown = vscode.commands.registerTextEditorCommand('console.log.wrap.string.down', (editor, edit) => handle(Wrap.Down, false, false, FormatAs.String));
     let cWrapPrefix= vscode.commands.registerTextEditorCommand('console.log.wrap.prefix', (editor, edit) => handle(Wrap.Inline, true));
     let cWrapInput= vscode.commands.registerTextEditorCommand('console.log.wrap.input', (editor, edit) => handle(Wrap.Inline, true, true));
     let cWrapUp = vscode.commands.registerTextEditorCommand('console.log.wrap.up', (editor, edit) => handle(Wrap.Up));
@@ -22,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
     let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('console.log.wrap.down.input', (editor, edit) => handle(Wrap.Down, true, true));
     let cSettings = vscode.commands.registerTextEditorCommand('console.log.settings', (editor, edit) => editSettings());
     
-    context.subscriptions.push(cWrap, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix, cSettings);
+    context.subscriptions.push(cWrap, cWrapString, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix, cSettings);
 }
 
 function editSettings() {
@@ -32,7 +35,7 @@ function editSettings() {
     window.showQuickPick(items)
 }
 
-function handle(target: Wrap, prefix?: boolean, input?: boolean) {
+function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: FormatAs) {
 
     new Promise((resolve, reject) => {
         let sel = currentEditor.selection;
@@ -65,7 +68,16 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                     resolve(wrapData)
                 }
             } else {
-                wrapData.txt = "console.log(".concat(txt, ");");
+                switch (formatAs) {
+                    case FormatAs.String:
+                        wrapData.txt = "console.log('".concat(txt, "');");
+                        break;
+                
+                    default:
+                        wrapData.txt = "console.log(".concat(txt, ");");        
+                        break;
+                }
+                
                 resolve(wrapData);
             }
         };
@@ -111,6 +123,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                         l = li; stop = true;
                     }
                 } else {
+                    if (li == wrap.doc.lineCount) li--;
                     stop = true;
                 }
             }
@@ -155,7 +168,6 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
 
                 if (!wrap.lastLine) {
                     nxtLine = wrap.doc.lineAt(wrap.line+1);
-                    nxtNonEmpty = (nxtLine.isEmptyOrWhitespace) ? wrap.doc.lineAt(getTargetLine(Wrap.Down)) : undefined;
                     nxtLineInd = nxtLine.text.substring(0, nxtLine.firstNonWhitespaceCharacterIndex);
                 } else {
                     nxtLineInd = "";
@@ -164,12 +176,20 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean) {
                 wrap.ind = vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true ? "" : wrap.ind;
                 let pos = new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character);
                 
-                currentEditor.edit(function(e) {
+                currentEditor.edit((e) => {
+                    let nxtNonEmpty;
+                    if (nxtLine) {
+                        nxtNonEmpty = (nxtLine.isEmptyOrWhitespace) ? wrap.doc.lineAt(getTargetLine(Wrap.Down)) : undefined;
+                    }
                     if (wrap.lastLine == false && nxtLine.isEmptyOrWhitespace) {
                         if (onEmptyAction == "Insert") {
                             e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
                         } else if (onEmptyAction == "Replace") {
-                            e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                            if (nxtLine && (nxtNonEmpty.firstNonWhitespaceCharacterIndex > 0)) {
+                                e.replace(new vscode.Position(nxtLine.lineNumber, 0), " ".repeat(nxtNonEmpty.firstNonWhitespaceCharacterIndex).concat(wrap.txt));
+                            } else {
+                                e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                            }
                         }
                     } else {
                         e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
@@ -213,6 +233,7 @@ function getSetting(setting: string) {
     return vscode.workspace.getConfiguration("wrap-console-log")[setting]
 }
 
+
 interface WrapData {
     txt: string,
     sel: vscode.Selection,
@@ -222,6 +243,10 @@ interface WrapData {
     idx: number,
     line: number,
     lastLine: boolean
+}
+
+enum FormatAs {
+    String
 }
 
 enum Wrap {

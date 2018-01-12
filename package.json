@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.4.0",
+    "version": "1.5.0",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -29,7 +29,10 @@
         "onCommand:console.log.wrap.up.prefix.input",
         "onCommand:console.log.wrap.down",
         "onCommand:console.log.wrap.down.prefix",
-        "onCommand:console.log.wrap.down.prefix.input"
+        "onCommand:console.log.wrap.down.prefix.input",
+        "onCommand:console.log.wrap.string",
+        "onCommand:console.log.wrap.string.up",
+        "onCommand:console.log.wrap.string.down"
     ],
     "main": "out/extension.js",
     "contributes": {
@@ -120,12 +123,39 @@
             {
                 "command": "console.log.wrap.up.input",
                 "title": "Wrap up input console log"
+            },
+            {
+                "command": "console.log.wrap.string",
+                "title": "Wrap console.log as string"
+            },
+            {
+                "command": "console.log.wrap.string.down",
+                "title": "Wrap down console.log as string"
+            },
+            {
+                "command": "console.log.wrap.string.up",
+                "title": "Wrap up console.log as string"
             }
         ],
         "keybindings": [
             {
                 "command": "console.log.wrap",
                 "key": "ctrl+alt+w w",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "console.log.wrap.string",
+                "key": "alt+shift+w w",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "console.log.wrap.string.down",
+                "key": "alt+shift+w down",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "console.log.wrap.string.up",
+                "key": "alt+shift+w up",
                 "when": "editorTextFocus"
             },
             {
