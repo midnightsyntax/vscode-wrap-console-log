@@ -12,19 +12,30 @@ This extension wraps the word near your cursor and replaces it as an argument fo
 * Supports custom prefix
 
 > ### Type the variable to log
+
 ![demo](images/screenshot_inline_replace.gif)
 
+
 > ### Log the variable on cursor
+
 ![demo](images/screenshot_log_cursor.gif)
 
+
 > ### Type and log it as a string
+
+
 ![demo](images/screenshot_inline_string.gif)
 
+
 > ### Keep your indents
+
 ![demo](images/screenshot_indent.gif)
 
+
 > ### Use custom prefix
+
 ![demo](images/screenshot_custom_prefix.gif)
+
 
 The fastest way to log your variables! Type it and press `Ctrl+Alt+W` + `W`.
 
