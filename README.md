@@ -51,7 +51,7 @@ Also, you are free to rebind all keyboard shortcuts as you want in your workspac
 > ### Log as string
 *Replace the word on your cursor or the selected text*
 
-*  `Ctrl+Alt+W` + `W`
+*  `Alt+Shift+W` + `W`
 
 ---
 
