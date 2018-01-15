@@ -2,6 +2,21 @@
 
 # CHANGELOG
 
+---
+
+## 1.6.0
+##### 2018-01-15
+
+### Added
+- Custom wrap text!
+- New config settings `.wrapText`
+
+Specify the text to wrap with with the new setting `.wrapText`.
+The default value of this setting is `console.log($txt);` where `$txt` specifies where the variable/text should be inserted. If the value of `.wrapText` does not include `$txt` vscode will warn you. Make sure you specify `$txt` ONE time if you change this setting.
+
+---
+
+
 ## 1.5.0
 ##### 2018-01-12
 

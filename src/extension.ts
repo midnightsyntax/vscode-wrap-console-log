@@ -54,27 +54,31 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             let txt = doc.getText(ran);
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
-            let wrapData = { txt: undefined, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
+            let wrapData = { txt: getSetting('wrapText'), doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
             if (prefix || getSetting("alwaysUsePrefix")) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
                     vscode.window.showInputBox({placeHolder: 'Prefix', value: txt, prompt: 'Use text from input box as prefix'}).then((val) => {
                         if (val != undefined) {
-                            wrapData.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                            //wrapData.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
+                            wrapData.txt = wrapData.txt.replace('$txt', val);
                             resolve(wrapData)
                         }
                     })
                 } else {
-                    wrapData.txt = "console.log('".concat(txt, "', ", txt ,");");
+                    // wrapData.txt = "console.log('".concat(txt, "', ", txt ,");");
+                    wrapData.txt = wrapData.txt.replace('$txt', txt);
                     resolve(wrapData)
                 }
             } else {
                 switch (formatAs) {
                     case FormatAs.String:
-                        wrapData.txt = "console.log('".concat(txt, "');");
+                        // wrapData.txt = "console.log('".concat(txt, "');");
+                        wrapData.txt = wrapData.txt.replace('$txt', "'".concat(txt, "'"));
                         break;
                 
                     default:
-                        wrapData.txt = "console.log(".concat(txt, ");");        
+                        // wrapData.txt = "console.log(".concat(txt, ");");
+                        wrapData.txt = wrapData.txt.replace('$txt', txt);
                         break;
                 }
                 

@@ -53,6 +53,8 @@ Also, you are free to rebind all keyboard shortcuts as you want in your workspac
 
 *  `Alt+Shift+W` + `W`
 
+##### OBS: If the string to log contains spaces you need to select the whole string
+
 ---
 
 ### Log on current line

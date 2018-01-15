@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.5.3",
+    "version": "1.6.0",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -84,6 +84,13 @@
                     "title": "Always log with the wrapped word as prefix.",
                     "description": "If true ALL wraps will log with the selected word as prefix.",
                     "default": false
+                },
+                "wrap-console-log.wrapText": {
+                    "title": "The text to wrap with.",
+                    "description": "Use $text to specify where in the string your variable/text should be placed.",
+                    "type": "string",
+                    "default": "console.log($txt);",
+                    "pattern": "\\$txt"
                 }
             }
         },
