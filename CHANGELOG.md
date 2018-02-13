@@ -2,6 +2,13 @@
 
 # CHANGELOG
 
+## 1.6.1
+##### 2018-02-13
+
+### Fixed
+ - Prefix value from inbox box not being used
+ - Input box command not activating the extension
+
 ---
 
 ## 1.6.0

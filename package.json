@@ -22,6 +22,7 @@
     ],
     "activationEvents": [
         "onCommand:console.log.wrap",
+        "onCommand:console.log.wrap.input",
         "onCommand:console.log.wrap.prefix",
         "onCommand:console.log.wrap.prefix.input",
         "onCommand:console.log.wrap.up",

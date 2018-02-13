@@ -10,29 +10,21 @@ export function activate(context: vscode.ExtensionContext) {
     currentEditor = vscode.window.activeTextEditor;
 
     vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
-
-    let cWrap = vscode.commands.registerTextEditorCommand('console.log.wrap', (editor, edit) => handle(Wrap.Inline));
-    let cWrapString = vscode.commands.registerTextEditorCommand('console.log.wrap.string', (editor, edit) => handle(Wrap.Inline, false, false, FormatAs.String));
-    let cWrapStringUp = vscode.commands.registerTextEditorCommand('console.log.wrap.string.up', (editor, edit) => handle(Wrap.Up, false, false, FormatAs.String));
-    let cWrapStringDown = vscode.commands.registerTextEditorCommand('console.log.wrap.string.down', (editor, edit) => handle(Wrap.Down, false, false, FormatAs.String));
-    let cWrapPrefix= vscode.commands.registerTextEditorCommand('console.log.wrap.prefix', (editor, edit) => handle(Wrap.Inline, true));
-    let cWrapInput= vscode.commands.registerTextEditorCommand('console.log.wrap.input', (editor, edit) => handle(Wrap.Inline, true, true));
-    let cWrapUp = vscode.commands.registerTextEditorCommand('console.log.wrap.up', (editor, edit) => handle(Wrap.Up));
-    let cWrapUpPrefix = vscode.commands.registerTextEditorCommand('console.log.wrap.up.prefix', (editor, edit) => handle(Wrap.Up, true));
-    let cWrapUpPrefixInput = vscode.commands.registerTextEditorCommand('console.log.wrap.up.input', (editor, edit) => handle(Wrap.Up, true, true));
-    let cWrapDown = vscode.commands.registerTextEditorCommand('console.log.wrap.down', (editor, edit) => handle(Wrap.Down));
-    let cWrapDownPrefix = vscode.commands.registerTextEditorCommand('console.log.wrap.down.prefix', (editor, edit) => handle(Wrap.Down, true));
-    let cWrapDownPrefixInput = vscode.commands.registerTextEditorCommand('console.log.wrap.down.input', (editor, edit) => handle(Wrap.Down, true, true));
-    let cSettings = vscode.commands.registerTextEditorCommand('console.log.settings', (editor, edit) => editSettings());
     
-    context.subscriptions.push(cWrap, cWrapString, cWrapUp, cWrapDown, cWrapPrefix, cWrapDownPrefix, cWrapUpPrefix, cSettings);
-}
-
-function editSettings() {
-    let items:QuickPickItem[] = []
-    let u = new vscode.Uri();
-    let t = workspace.openTextDocument(u)
-    window.showQuickPick(items)
+    context.subscriptions.push(
+        vscode.commands.registerTextEditorCommand('console.log.wrap', (editor, edit) => handle(Wrap.Inline)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.string', (editor, edit) => handle(Wrap.Inline, false, false, FormatAs.String)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.string.up', (editor, edit) => handle(Wrap.Up, false, false, FormatAs.String)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.string.down', (editor, edit) => handle(Wrap.Down, false, false, FormatAs.String)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.prefix', (editor, edit) => handle(Wrap.Inline, true)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.input', (editor, edit) => handle(Wrap.Inline, true, true)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.up', (editor, edit) => handle(Wrap.Up)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.up.prefix', (editor, edit) => handle(Wrap.Up, true)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.up.input', (editor, edit) => handle(Wrap.Up, true, true)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.down', (editor, edit) => handle(Wrap.Down)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.down.prefix', (editor, edit) => handle(Wrap.Down, true)),
+        vscode.commands.registerTextEditorCommand('console.log.wrap.down.input', (editor, edit) => handle(Wrap.Down, true, true))
+    );
 }
 
 function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: FormatAs) {
@@ -51,34 +43,30 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
         
             let doc = currentEditor.document;
             let lineNumber = ran.start.line;
-            let txt = doc.getText(ran);
+            let item = doc.getText(ran);
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
-            let wrapData = { txt: getSetting('wrapText'), doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
+            let wrapData = { txt: getSetting('wrapText'), item: item, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
             if (prefix || getSetting("alwaysUsePrefix")) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
-                    vscode.window.showInputBox({placeHolder: 'Prefix', value: txt, prompt: 'Use text from input box as prefix'}).then((val) => {
+                    vscode.window.showInputBox({placeHolder: 'Prefix string', value: '', prompt: 'Use text from input box as prefix'}).then((val) => {
                         if (val != undefined) {
-                            //wrapData.txt = "console.log('".concat(val.trim(), "', ", txt ,");");
-                            wrapData.txt = wrapData.txt.replace('$txt', val);
+                            wrapData.txt = "console.log('".concat(val.trim(), "', ", wrapData.item ,");");
                             resolve(wrapData)
                         }
                     })
                 } else {
-                    // wrapData.txt = "console.log('".concat(txt, "', ", txt ,");");
-                    wrapData.txt = wrapData.txt.replace('$txt', txt);
+                    wrapData.txt = wrapData.txt.replace('$txt', item);
                     resolve(wrapData)
                 }
             } else {
                 switch (formatAs) {
                     case FormatAs.String:
-                        // wrapData.txt = "console.log('".concat(txt, "');");
-                        wrapData.txt = wrapData.txt.replace('$txt', "'".concat(txt, "'"));
+                        wrapData.txt = wrapData.txt.replace('$txt', "'".concat(item, "'"));
                         break;
                 
                     default:
-                        // wrapData.txt = "console.log(".concat(txt, ");");
-                        wrapData.txt = wrapData.txt.replace('$txt', txt);
+                        wrapData.txt = wrapData.txt.replace('$txt', item);
                         break;
                 }
                 
@@ -237,9 +225,9 @@ function getSetting(setting: string) {
     return vscode.workspace.getConfiguration("wrap-console-log")[setting]
 }
 
-
 interface WrapData {
     txt: string,
+    item: string,
     sel: vscode.Selection,
     doc: vscode.TextDocument,
     ran: vscode.Range,
