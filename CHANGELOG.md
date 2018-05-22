@@ -2,6 +2,18 @@
 
 # CHANGELOG
 
+## 1.6.2
+##### 2018-05-22
+
+### Fixed
+
+ -  ([Issue #5](https://github.com/midnightsyntax/vscode-wrap-console-log/issues/5)) Prefix not being used when using any of the following commands:
+    - Wrap prefix
+    - Wrap down prefix
+    - Wrap up prefix
+    
+---
+
 ## 1.6.1
 ##### 2018-02-13
 

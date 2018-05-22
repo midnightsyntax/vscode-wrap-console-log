@@ -56,7 +56,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                         }
                     })
                 } else {
-                    wrapData.txt = wrapData.txt.replace('$txt', item);
+                    wrapData.txt = "console.log('".concat(wrapData.item, "', ", wrapData.item ,");");
                     resolve(wrapData)
                 }
             } else {
