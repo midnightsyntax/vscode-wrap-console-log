@@ -1,13 +1,13 @@
 {
-    "name": "vscode-wrap-console-log",
-    "displayName": "Wrap Console Log",
+    "name": "vscode-wrap-console-log-no-semi",
+    "displayName": "Wrap Console Log (no semi)",
     "description": "Wrap to console.log by word or selection",
     "repository": {
         "type": "git",
-        "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
+        "url": "https://github.com/dobeerman/vscode-wrap-console-log"
     },
     "version": "1.6.2",
-    "publisher": "midnightsyntax",
+    "publisher": "dobeerman",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.5.0"
