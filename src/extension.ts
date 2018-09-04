@@ -3,14 +3,14 @@
 import * as vscode from 'vscode';
 import { window, QuickPickItem, workspace } from 'vscode';
 
-let currentEditor:vscode.TextEditor;
+let currentEditor: vscode.TextEditor;
 
 export function activate(context: vscode.ExtensionContext) {
 
     currentEditor = vscode.window.activeTextEditor;
 
     vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
-    
+
     context.subscriptions.push(
         vscode.commands.registerTextEditorCommand('console.log.wrap', (editor, edit) => handle(Wrap.Inline)),
         vscode.commands.registerTextEditorCommand('console.log.wrap.string', (editor, edit) => handle(Wrap.Inline, false, false, FormatAs.String)),
@@ -32,31 +32,31 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
     new Promise((resolve, reject) => {
         let sel = currentEditor.selection;
         let len = sel.end.character - sel.start.character;
-    
-        let ran = len == 0 ? currentEditor.document.getWordRangeAtPosition(sel.anchor) : 
+
+        let ran = len == 0 ? currentEditor.document.getWordRangeAtPosition(sel.anchor) :
             new vscode.Range(sel.start, sel.end);
-    
+
         if (ran == undefined) {
             reject('NO_WORD');
         }
         else {
-        
+
             let doc = currentEditor.document;
             let lineNumber = ran.start.line;
             let item = doc.getText(ran);
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
-            let wrapData = { txt: getSetting('wrapText'), item: item, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
+            let wrapData = { txt: getSetting('wrapText'), item: item, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount - 1 == lineNumber };
             if (prefix || getSetting("alwaysUsePrefix")) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
-                    vscode.window.showInputBox({placeHolder: 'Prefix string', value: '', prompt: 'Use text from input box as prefix'}).then((val) => {
+                    vscode.window.showInputBox({ placeHolder: 'Prefix string', value: '', prompt: 'Use text from input box as prefix' }).then((val) => {
                         if (val != undefined) {
-                            wrapData.txt = "console.log('".concat(val.trim(), "', ", wrapData.item ,");");
+                            wrapData.txt = "console.log('".concat(val.trim(), "', ", wrapData.item, ")");
                             resolve(wrapData)
                         }
                     })
                 } else {
-                    wrapData.txt = "console.log('".concat(wrapData.item, "', ", wrapData.item ,");");
+                    wrapData.txt = "console.log('".concat(wrapData.item, "', ", wrapData.item, ")");
                     resolve(wrapData)
                 }
             } else {
@@ -64,17 +64,17 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                     case FormatAs.String:
                         wrapData.txt = wrapData.txt.replace('$txt', "'".concat(item, "'"));
                         break;
-                
+
                     default:
                         wrapData.txt = wrapData.txt.replace('$txt', item);
                         break;
                 }
-                
+
                 resolve(wrapData);
             }
         };
 
-    }).then((wrap:WrapData) => {
+    }).then((wrap: WrapData) => {
 
         let onEmptyAction = getSetting("onEmptyLineAction");
         let setCursor = getSetting("setCursorOnNewLine");
@@ -83,11 +83,11 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
 
             let tpos;
             switch (getSetting('cursorPositionNewLine')) {
-        
+
                 case 'Same':
                     tpos = new vscode.Position(l, currentEditor.selection.anchor.character);
                     break;
-            
+
                 case 'Right':
                     tpos = new vscode.Position(l, currentEditor.document.lineAt(l).range.end.character);
                     break;
@@ -125,7 +125,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
         switch (target) {
 
             case Wrap.Inline: {
-                currentEditor.edit(function(e) {
+                currentEditor.edit(function (e) {
                     e.replace(wrap.ran, wrap.txt);
                 }).then(() => {
                     currentEditor.selection = new vscode.Selection(
@@ -134,14 +134,14 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                     )
                 });
             } break;
-        
+
             case Wrap.Up: {
 
-                let tLine = wrap.doc.lineAt(wrap.line == 0 ? 0 : wrap.line-1);
+                let tLine = wrap.doc.lineAt(wrap.line == 0 ? 0 : wrap.line - 1);
                 let tLineEmpty = tLine.text.trim() == '' ? true : false;
                 let tLineInd = tLine.text.substring(0, tLine.firstNonWhitespaceCharacterIndex);
 
-                currentEditor.edit(function(e) {
+                currentEditor.edit(function (e) {
                     if (tLineEmpty && onEmptyAction == "Replace") {
                         e.replace(new vscode.Position(tLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
                     } else {
@@ -159,7 +159,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                 let nxtNonEmpty: vscode.TextLine
 
                 if (!wrap.lastLine) {
-                    nxtLine = wrap.doc.lineAt(wrap.line+1);
+                    nxtLine = wrap.doc.lineAt(wrap.line + 1);
                     nxtLineInd = nxtLine.text.substring(0, nxtLine.firstNonWhitespaceCharacterIndex);
                 } else {
                     nxtLineInd = "";
@@ -167,7 +167,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
 
                 wrap.ind = vscode.workspace.getConfiguration("wrap-console-log")["autoFormat"] == true ? "" : wrap.ind;
                 let pos = new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character);
-                
+
                 currentEditor.edit((e) => {
                     let nxtNonEmpty;
                     if (nxtLine) {
@@ -185,14 +185,14 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                         }
                     } else {
                         e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),
-                        "\n".concat((nxtLineInd.length > wrap.ind.length ? nxtLineInd : wrap.ind), wrap.txt));
+                            "\n".concat((nxtLineInd.length > wrap.ind.length ? nxtLineInd : wrap.ind), wrap.txt));
                     }
                 }).then(() => {
                     if (nxtLine == undefined) {
-                        nxtLine = wrap.doc.lineAt(wrap.line+1);
+                        nxtLine = wrap.doc.lineAt(wrap.line + 1);
                     }
                     if (getSetting("autoFormat") == true && !wrap.lastLine) {
-                        let nextLineEnd = wrap.doc.lineAt(wrap.line+2).range.end;
+                        let nextLineEnd = wrap.doc.lineAt(wrap.line + 2).range.end;
                         currentEditor.selection = new vscode.Selection(wrap.sel.start, nextLineEnd)
                         vscode.commands.executeCommand("currentEditor.action.formatSelection").then(() => {
                             currentEditor.selection = wrap.sel;
@@ -212,7 +212,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
         }
 
         if (getSetting("formatDocument") == true) {
-            vscode.commands.executeCommand("editor.action.formatDocument");   
+            vscode.commands.executeCommand("editor.action.formatDocument");
         }
 
     }).catch(message => {
