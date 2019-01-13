@@ -46,17 +46,32 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             let item = doc.getText(ran);
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
             let ind = doc.lineAt(lineNumber).text.substring(0, idx);
-            let wrapData = { txt: getSetting('wrapText'), item: item, doc: doc, ran: ran, idx: idx, ind: ind, line: lineNumber, sel: sel, lastLine: doc.lineCount-1 == lineNumber } ;
+            let wrapData = { 
+                txt:    getSetting('format.wrap.logString').replace('$func',
+                        getSetting('format.wrap.logFunctionName')).replace(/[$]var/g,
+                        item),
+                item: item,
+                doc: doc,
+                ran: ran,
+                idx: idx,
+                ind: ind,
+                line: lineNumber,
+                sel: sel,
+                lastLine: doc.lineCount-1 == lineNumber
+            } ;
+
             if (prefix || getSetting("alwaysUsePrefix")) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
                     vscode.window.showInputBox({placeHolder: 'Prefix string', value: '', prompt: 'Use text from input box as prefix'}).then((val) => {
                         if (val != undefined) {
-                            wrapData.txt = "console.log('".concat(val.trim(), "', ", wrapData.item ,");");
+                            wrapData.txt = getSetting('format.wrap.logFunctionName').concat('(\'' + val.trim() + '\', ', wrapData.item, ')', '');
                             resolve(wrapData)
                         }
                     })
                 } else {
-                    wrapData.txt = "console.log('".concat(wrapData.item, "', ", wrapData.item ,");");
+                    wrapData.txt =  getSetting('format.wrap.prefixString').replace('$func',
+                                    getSetting('format.wrap.prefixFunctionName')).replace(/[$]var/g,
+                                    item),
                     resolve(wrapData)
                 }
             } else {
@@ -76,24 +91,43 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
 
     }).then((wrap:WrapData) => {
 
-        let onEmptyAction = getSetting("onEmptyLineAction");
-        let setCursor = getSetting("setCursorOnNewLine");
+        // "Insert and push",
+        // "Replace empty"
+        const onEmptyAction = getSetting("configuration.emptyLineAction");
 
-        function SetCursor(l) {
+        // "Current position",
+        // "Beginning of wrap",
+        // "End of wrap",
+        // "Beginning of Line",
+        // "End of line"
+
+        // "Current line",
+        // "Target line"
+        const setCursorLine = getSetting("configuration.moveToLine");
+        
+        function SetCursor(line: number, character?: number) {
 
             let tpos;
-            switch (getSetting('cursorPositionNewLine')) {
+            switch (getSetting('configuration.moveToPosition')) {
         
-                case 'Same':
-                    tpos = new vscode.Position(l, currentEditor.selection.anchor.character);
+                case 'Current position':
+                    tpos = new vscode.Position(line, currentEditor.selection.anchor.character);
                     break;
             
-                case 'Right':
-                    tpos = new vscode.Position(l, currentEditor.document.lineAt(l).range.end.character);
+                case 'End of line':
+                    tpos = new vscode.Position(line, currentEditor.document.lineAt(line).range.end.character);
                     break;
 
-                case 'Left':
-                    tpos = new vscode.Position(l, currentEditor.document.lineAt(l).range.start.character);
+                case 'Beginning of line':
+                    tpos = new vscode.Position(line, currentEditor.document.lineAt(line).range.start.character);
+                    break;
+
+                case 'Beginning of wrap':
+                    tpos = new vscode.Position(line, character);
+                    break;
+
+                case 'First character':
+                    tpos = new vscode.Position(line, currentEditor.document.lineAt(line).firstNonWhitespaceCharacterIndex);
                     break;
 
                 default:
@@ -139,16 +173,23 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
 
                 let tLine = wrap.doc.lineAt(wrap.line == 0 ? 0 : wrap.line-1);
                 let tLineEmpty = tLine.text.trim() == '' ? true : false;
-                let tLineInd = tLine.text.substring(0, tLine.firstNonWhitespaceCharacterIndex);
+                var lineCorr = 0
 
                 currentEditor.edit(function(e) {
-                    if (tLineEmpty && onEmptyAction == "Replace") {
-                        e.replace(new vscode.Position(tLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
+                    if (tLineEmpty && onEmptyAction == "Replace empty") {
+                        lineCorr = -1;
+                        e.delete(tLine.rangeIncludingLineBreak);
+                        e.insert(new vscode.Position(wrap.line, 0), wrap.ind.concat(wrap.txt, '\n'))
                     } else {
-                        e.insert(new vscode.Position(wrap.line, wrap.idx), wrap.txt.concat('\n', wrap.ind));
+                        setCursorLine == 'Current line' ? lineCorr = 1 : lineCorr = 0
+                        if (setCursorLine == 'Target line') {
+                            e.insert(new vscode.Position(wrap.line-1, wrap.idx), wrap.ind.concat(wrap.txt));
+                        } else {
+                            e.insert(new vscode.Position(wrap.line, wrap.idx), wrap.txt.concat('\n',wrap.ind));
+                        }
                     }
                 }).then(() => {
-                    if (setCursor) SetCursor(wrap.line);
+                    SetCursor(wrap.line + lineCorr, wrap.ind.length);
                 });
             } break;
 
@@ -174,9 +215,9 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                         nxtNonEmpty = (nxtLine.isEmptyOrWhitespace) ? wrap.doc.lineAt(getTargetLine(Wrap.Down)) : undefined;
                     }
                     if (wrap.lastLine == false && nxtLine.isEmptyOrWhitespace) {
-                        if (onEmptyAction == "Insert") {
+                        if (onEmptyAction == "Insert and push") {
                             e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
-                        } else if (onEmptyAction == "Replace") {
+                        } else if (onEmptyAction == "Replace empty") {
                             if (nxtLine && (nxtNonEmpty.firstNonWhitespaceCharacterIndex > 0)) {
                                 e.replace(new vscode.Position(nxtLine.lineNumber, 0), " ".repeat(nxtNonEmpty.firstNonWhitespaceCharacterIndex).concat(wrap.txt));
                             } else {
@@ -203,7 +244,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                     } else {
                         currentEditor.selection = wrap.sel;
                     }
-                    if (setCursor) SetCursor(nxtLine.lineNumber);
+                    SetCursor(setCursorLine == 'Current line' ? wrap.line : wrap.line + 1);
                 })
             }
 
@@ -222,7 +263,11 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
 }
 
 function getSetting(setting: string) {
-    return vscode.workspace.getConfiguration("wrap-console-log")[setting]
+    var spl = setting.split('.');
+    
+    return spl.length == 1 ? vscode.workspace.getConfiguration("wrap-console-log")[setting] : spl.splice(1).reduce((a, b) => {
+            return a[b]
+        }, vscode.workspace.getConfiguration("wrap-console-log")[spl[0]])
 }
 
 interface WrapData {

@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.6.2",
+    "version": "1.7.0",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -38,60 +38,77 @@
     "main": "out/extension.js",
     "contributes": {
         "configuration": {
+            "id": "wrap-console-log",
             "title": "Wrap Console Log",
             "type": "object",
             "properties": {
-                "wrap-console-log.setCursorOnNewLine": {
+                "wrap-console-log.autoFormat": {
                     "type": "boolean",
-                    "title": "Configure the behavior of the cursor after a wrap up or down.",
-                    "description": "When enabled the cursor will jump to the line where 'console.log' got inserted. If disabled the cursor will stay on the same line as when you executed the command.",
+                    "description": "Run VSCode 'Format Document' after every log command.",
                     "default": false
                 },
-                "wrap-console-log.onEmptyLineAction": {
+                "wrap-console-log.configuration.emptyLineAction": {
                     "type": "string",
                     "enum": [
-                        "Insert",
-                        "Replace"
+                        "Insert and push",
+                        "Replace empty"
                     ],
-                    "title": "The default action when logging up or down to empty lines",
-                    "description": "When logging up or down the extension \"pushes\" the existing lines in the document by inserting 'console.log' with a new line. This is how 'Insert', the default behaviour, work. This setting controls if the same method should be used when targeting empty lines. When the target line is empty 'Insert' will move the empty line and place the log on its orginal location. 'Replace' on the other hand will replace the empty line, using the same line for the log.",
+                    "markdownDescription": "Defines the default text action when logging to an empty line. \n\n`Insert and push` will push the target line in the direction of the log command. \n\n`Replace empty` will replace the target line. No existing rows will be moved.",
                     "default": "Insert"
                 },
-                "wrap-console-log.formatDocument": {
-                    "type": "boolean",
-                    "title": "Format Document after 'console.log' has been inserted.",
-                    "description": "When enabled run \"editor.action.formatDocument\" after 'console.log' has been inserted.",
-                    "default": false
-                },
-                "wrap-console-log.cursorPositionNewLine": {
+                "wrap-console-log.configuration.moveToLine": {
                     "type": "string",
                     "enum": [
-                        "Left",
-                        "Right",
-                        "Same"
+                        "Current line",
+                        "Target line"
                     ],
-                    "title": "Set the position of the cursor when it jumps to new lines.",
-                    "description": "When 'setCursorOnNewLine' is enabled this setting controls where on the new line the cursor should be placed. If 'setCursorOnNewLine' is disabled this setting will have no effect.",
-                    "default": "Right"
+                    "description": "Controls what line the cursor should be set to after log.",
+                    "default": "Current line"
+                },
+                "wrap-console-log.configuration.moveToPosition": {
+                    "type": "string",
+                    "enum": [
+                        "Current position",
+                        "First character",
+                        "Beginning of line",
+                        "End of line"
+                    ],
+                    "description": "Specifies the cursor position within the log line after log.",
+                    "default": "Current position"
                 },
                 "wrap-console-log.alwaysInputBoxOnPrefix": {
                     "type": "boolean",
                     "title": "Always show input box when wrapping with a prefix.",
-                    "description": "If true an input box will always show when logging with a prefix.",
+                    "description": "Always use the input box when logging with a prefix.",
                     "default": false
                 },
                 "wrap-console-log.alwaysUsePrefix": {
                     "type": "boolean",
                     "title": "Always log with the wrapped word as prefix.",
-                    "description": "If true ALL wraps will log with the selected word as prefix.",
+                    "description": "Always log with default prefix.",
                     "default": false
                 },
-                "wrap-console-log.wrapText": {
-                    "title": "The text to wrap with.",
-                    "description": "Use $text to specify where in the string your variable/text should be placed.",
+                "wrap-console-log.format.wrap.logFunctionName": {
+                    "markdownDescription": "Defines the function to use for default logging with no arguments. See also [`Log String`](#wrap-console-log.format.text.logString).",
                     "type": "string",
-                    "default": "console.log($txt);",
-                    "pattern": "\\$txt"
+                    "default": "console.text",
+                    "pattern": "^[a-zA-Z.-]+$"
+                },
+                "wrap-console-log.format.wrap.logString": {
+                    "markdownDescription": "Enables custom control of the default log string. Use `$func` to specify the function name defined by [`Log Function`](#wrap-console-log.format.text.textFunction) and `$var` to specify the variable/text to log. `$var` can be specified **one** or **multible** times. ",
+                    "type": "string",
+                    "default": "$func($var)"
+                },
+                "wrap-console-log.format.wrap.prefixFunctionName": {
+                    "markdownDescription": "Defines the function to use for logging with prefix. See also [`Wrap Advanced`](#wrap-console-log.format.text.prefixString).",
+                    "type": "string",
+                    "default": "console.text",
+                    "pattern": "^[a-zA-Z.-]+$"
+                },
+                "wrap-console-log.format.wrap.prefixString": {
+                    "markdownDescription": "Enables custom control of the prefix log string. Use `$func` to specify the function name defined by [`Wrap Function Name`](#wrap-console-log.format.text.prefixFunctionName) and `$var` to specify the variable/text to log. `$var` can be specified **one** or **multible** times. ",
+                    "type": "string",
+                    "default": "$func('$var:', $var)"
                 }
             }
         },

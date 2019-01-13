@@ -2,6 +2,47 @@
 
 # CHANGELOG
 
+## 1.7.0
+##### 2019-01-13
+
+### Added
+- Setting `logFunctionName` has been added
+- Setting `logString` has been added
+- Setting `prefixFunctionName` has been added
+- Setting `prefixString` has been added
+
+### Changed
+- Setting `setCursorOnNewLine` renamed to `configuration.moveToLine`
+- Setting `cursorPositionNewLine` renamed to `configuration.moveToPosition`
+- Setting `onEmptyLineAction` renamed to `configuration.emptyLineAction`
+- Various settings descriptions
+
+### Removed
+ - Setting `wrapText` has been removed in favor of the new custom log settings
+
+## More custom log support
+Get finer control over the inserted log string. It is now possible to set a custom function name for the default log command as well as the prefix command.
+
+Log and Prefix correspond to two different keybindings, the default `wrap` with no prefix and `wrap.prefix`.
+
+Use `Log Function Name` and `Log String` to specify the log function for the default logging command with no prefix. 
+
+Use  `Prefix Function Name` and `Prefix String` to specify a different function when logging with prefixes.
+
+Default configuration values are:
+
+-   Default Log Function Name:  `console.log`
+-   Default Log String: `$func($var)`
+-   Default Prefix Function Name:  `console.log`
+-   Default Prefix String: `$func('$var:', $var)`
+
+
+## Configuration settings reworked
+With the new Settings UI in Visual Studio Code all configuration setting names and descriptions have been reworked!
+The configuration settings are now much easier to understand and edited in the Settings window.
+     
+---
+
 ## 1.6.2
 ##### 2018-05-22
 
