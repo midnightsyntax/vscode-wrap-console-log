@@ -2,6 +2,18 @@
 
 # CHANGELOG
 
+## 1.7.1
+##### 2019-01-15
+
+### Fixed
+    
+- > [Issue #12](https://github.com/midnightsyntax/vscode-wrap-console-log/issues/12])
+
+    Setting `.logFunctionName` and `.prefixFunctionName` using `console.text` instead of `console.log` 
+-   Command `wrap.string` not logging as string
+
+---
+
 ## 1.7.0
 ##### 2019-01-13
 
@@ -48,10 +60,9 @@ The configuration settings are now much easier to understand and edited in the S
 
 ### Fixed
 
- -  ([Issue #5](https://github.com/midnightsyntax/vscode-wrap-console-log/issues/5)) Prefix not being used when using any of the following commands:
-    - Wrap prefix
-    - Wrap down prefix
-    - Wrap up prefix
+ - > [Issue #5](https://github.com/midnightsyntax/vscode-wrap-console-log/issues/5)
+    
+    Commands `wrap.prefix`, `wrap.up.prefix`, `wrap.down.prefix` not using prefix
     
 ---
 

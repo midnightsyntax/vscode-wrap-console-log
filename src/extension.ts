@@ -40,55 +40,52 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             reject('NO_WORD');
         }
         else {
-        
+
             let doc = currentEditor.document;
-            let lineNumber = ran.start.line;
-            let item = doc.getText(ran);
-            let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex;
-            let ind = doc.lineAt(lineNumber).text.substring(0, idx);
+            let lineNumber = ran.start.line
+            let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex
             let wrapData = { 
-                txt:    getSetting('format.wrap.logString').replace('$func',
-                        getSetting('format.wrap.logFunctionName')).replace(/[$]var/g,
-                        item),
-                item: item,
+                txt: undefined,
+                item: doc.getText(ran),
                 doc: doc,
                 ran: ran,
                 idx: idx,
-                ind: ind,
+                ind: doc.lineAt(lineNumber).text.substring(0, idx),
                 line: lineNumber,
                 sel: sel,
                 lastLine: doc.lineCount-1 == lineNumber
             } ;
 
-            if (prefix || getSetting("alwaysUsePrefix")) {
+            prefix = prefix || getSetting("alwaysUsePrefix") ? true : false
+
+            if (prefix) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
                     vscode.window.showInputBox({placeHolder: 'Prefix string', value: '', prompt: 'Use text from input box as prefix'}).then((val) => {
                         if (val != undefined) {
-                            wrapData.txt = getSetting('format.wrap.logFunctionName').concat('(\'' + val.trim() + '\', ', wrapData.item, ')', '');
-                            resolve(wrapData)
-                        }
+                            wrapData.txt = getSetting('format.wrap.prefixFunctionName').concat("('", val.trim(), "',", wrapData.item, ")");
+                            resolve(wrapData);
+                        } else reject('INPUT_CANCEL');
                     })
                 } else {
-                    wrapData.txt =  getSetting('format.wrap.prefixString').replace('$func',
+                    wrapData.txt = getSetting('format.wrap.prefixString').replace('$func',
                                     getSetting('format.wrap.prefixFunctionName')).replace(/[$]var/g,
-                                    item),
-                    resolve(wrapData)
+                                    wrapData.item);
+                    resolve(wrapData);
                 }
             } else {
-                switch (formatAs) {
-                    case FormatAs.String:
-                        wrapData.txt = wrapData.txt.replace('$txt', "'".concat(item, "'"));
-                        break;
-                
-                    default:
-                        wrapData.txt = wrapData.txt.replace('$txt', item);
-                        break;
+                if (formatAs != undefined) {
+                    switch (formatAs) {
+                        case FormatAs.String:
+                                wrapData.txt = getSetting('format.wrap.logFunctionName').concat("('", wrapData.item, "')");
+                            break;
+                    }
+                } else {
+                    wrapData.txt = getSetting('format.wrap.logString')
+                        .replace('$func', getSetting('format.wrap.logFunctionName')).replace(/[$]var/g, wrapData.item)
                 }
-                
                 resolve(wrapData);
             }
         };
-
     }).then((wrap:WrapData) => {
 
         // "Insert and push",
@@ -257,7 +254,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
         }
 
     }).catch(message => {
-        console.log('vscode-wrap-console REJECTED_PROMISE : ' + message);
+        console.log('vscode-wrap-console-log CANCEL: ' + message);
     });
 
 }

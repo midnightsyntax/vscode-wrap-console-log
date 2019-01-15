@@ -91,7 +91,7 @@
                 "wrap-console-log.format.wrap.logFunctionName": {
                     "markdownDescription": "Defines the function to use for default logging with no arguments. See also [`Log String`](#wrap-console-log.format.text.logString).",
                     "type": "string",
-                    "default": "console.text",
+                    "default": "console.log",
                     "pattern": "^[a-zA-Z.-]+$"
                 },
                 "wrap-console-log.format.wrap.logString": {
@@ -102,7 +102,7 @@
                 "wrap-console-log.format.wrap.prefixFunctionName": {
                     "markdownDescription": "Defines the function to use for logging with prefix. See also [`Wrap Advanced`](#wrap-console-log.format.text.prefixString).",
                     "type": "string",
-                    "default": "console.text",
+                    "default": "console.log",
                     "pattern": "^[a-zA-Z.-]+$"
                 },
                 "wrap-console-log.format.wrap.prefixString": {
