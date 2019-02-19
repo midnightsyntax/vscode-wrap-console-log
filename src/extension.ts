@@ -2,13 +2,31 @@
 
 import * as vscode from 'vscode';
 import { window, QuickPickItem, workspace } from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 
 let currentEditor:vscode.TextEditor;
+let currentContext:vscode.ExtensionContext;
 
 export function activate(context: vscode.ExtensionContext) {
-
+    currentContext = context;
     currentEditor = vscode.window.activeTextEditor;
-
+    var props = JSON.parse(fs.readFileSync(path.join(currentContext.extensionPath, 'package.json'), 'utf8')).contributes.configuration.properties;
+    Object.keys(props).forEach((prop, i) => {
+        let pName = prop.replace('wrap-console-log.','');
+        let pObj = props[prop];
+        let settingValue = getSetting(pName);
+        if (pObj) {
+            if (pObj.hasOwnProperty("enum")) {
+                console.log(`Checking enum config '${pName}'`);
+                let valueValid = pObj.enum.some(val => val == settingValue);
+                if (!valueValid) {
+                    vscode.workspace.getConfiguration("wrap-console-log").update(pName, undefined);
+                    console.log(`Invalid setting value! '${pName}' has been set to default value '${pObj.default}'`);
+                }
+            }
+        }
+    });
     vscode.window.onDidChangeActiveTextEditor(editor => currentEditor = editor);
     
     context.subscriptions.push(
@@ -212,14 +230,20 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                         nxtNonEmpty = (nxtLine.isEmptyOrWhitespace) ? wrap.doc.lineAt(getTargetLine(Wrap.Down)) : undefined;
                     }
                     if (wrap.lastLine == false && nxtLine.isEmptyOrWhitespace) {
-                        if (onEmptyAction == "Insert and push") {
+                        function defaultAction() {
                             e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character), "\n".concat((nxtLineInd > wrap.ind ? nxtLineInd : wrap.ind), wrap.txt));
+                        };
+                        if (onEmptyAction == "Insert and push") {
+                            defaultAction();
                         } else if (onEmptyAction == "Replace empty") {
                             if (nxtLine && (nxtNonEmpty.firstNonWhitespaceCharacterIndex > 0)) {
                                 e.replace(new vscode.Position(nxtLine.lineNumber, 0), " ".repeat(nxtNonEmpty.firstNonWhitespaceCharacterIndex).concat(wrap.txt));
                             } else {
                                 e.replace(new vscode.Position(nxtLine.lineNumber, 0), wrap.ind.concat(wrap.txt));
                             }
+                        } else {
+                            console.log(`Invalid config setting! Using 'emptyLineAction' default value`);
+                            defaultAction();
                         }
                     } else {
                         e.insert(new vscode.Position(wrap.line, wrap.doc.lineAt(wrap.line).range.end.character),

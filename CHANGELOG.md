@@ -2,6 +2,15 @@
 
 # CHANGELOG
 
+## 1.7.2
+##### 2019-02-19
+
+### Fixed
+    
+-   Setting `.emptyLineAction` using wrong default value
+
+---
+
 ## 1.7.1
 ##### 2019-01-15
 
@@ -18,19 +27,19 @@
 ##### 2019-01-13
 
 ### Added
-- Setting `logFunctionName` has been added
-- Setting `logString` has been added
-- Setting `prefixFunctionName` has been added
-- Setting `prefixString` has been added
+- Setting `.logFunctionName` has been added
+- Setting `.logString` has been added
+- Setting `.prefixFunctionName` has been added
+- Setting `.prefixString` has been added
 
 ### Changed
-- Setting `setCursorOnNewLine` renamed to `configuration.moveToLine`
-- Setting `cursorPositionNewLine` renamed to `configuration.moveToPosition`
-- Setting `onEmptyLineAction` renamed to `configuration.emptyLineAction`
+- Setting `.setCursorOnNewLine` renamed to `configuration.moveToLine`
+- Setting `.cursorPositionNewLine` renamed to `configuration.moveToPosition`
+- Setting `.onEmptyLineAction` renamed to `configuration.emptyLineAction`
 - Various settings descriptions
 
 ### Removed
- - Setting `wrapText` has been removed in favor of the new custom log settings
+ - Setting `.wrapText` has been removed in favor of the new custom log settings
 
 ## More custom log support
 Get finer control over the inserted log string. It is now possible to set a custom function name for the default log command as well as the prefix command.

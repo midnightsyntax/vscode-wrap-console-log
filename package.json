@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.7.1",
+    "version": "1.7.2",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -54,7 +54,7 @@
                         "Replace empty"
                     ],
                     "markdownDescription": "Defines the default text action when logging to an empty line. \n\n`Insert and push` will push the target line in the direction of the log command. \n\n`Replace empty` will replace the target line. No existing rows will be moved.",
-                    "default": "Insert"
+                    "default": "Insert and push"
                 },
                 "wrap-console-log.configuration.moveToLine": {
                     "type": "string",
