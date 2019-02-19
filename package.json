@@ -226,15 +226,15 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
+        "vscode:prepublish": "yarn run compile",
+        "compile": "tsc -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0",
+        "typescript": "^3.1.4",
+        "vscode": "^1.1.25",
         "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
+        "@types/node": "^8.10.25",
         "@types/mocha": "^2.2.32"
     }
 }
