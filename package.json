@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.7.2",
+    "version": "1.7.3",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -233,6 +233,6 @@
     "devDependencies": {
         "@types/node": "^8.10.25",
         "typescript": "^3.1.4",
-        "vscode": "^1.1.25"
+        "vscode": "^1.1.34"
     }
 }
