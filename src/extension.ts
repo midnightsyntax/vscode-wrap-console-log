@@ -75,6 +75,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             } ;
 
             prefix = prefix || getSetting("alwaysUsePrefix") ? true : false
+            const prefixString = getSetting("format.wrap.prefixStringLanguages")[doc.languageId] || getSetting('format.wrap.prefixString');
 
             if (prefix) {
                 if (getSetting("alwaysInputBoxOnPrefix") == true || input) {
@@ -85,7 +86,7 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
                         } else reject('INPUT_CANCEL');
                     })
                 } else {
-                    wrapData.txt = getSetting('format.wrap.prefixString').replace('$func',
+                    wrapData.txt = prefixString.replace('$func',
                                     getSetting('format.wrap.prefixFunctionName')).replace(/[$]var/g,
                                     wrapData.item);
                     resolve(wrapData);
