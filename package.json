@@ -115,7 +115,7 @@
                   "type": "object",
                   "default": {
                     "shellscript": "echo '$var:' $var",
-                    "rust": "println!(\"$var: {}\", $var)",
+                    "rust": "println!(\"$var: {}\", $var);",
                     "ruby": "puts \"$name: #{$name}\"",
                     "go": "fmt.Println(\"$var:\", $var)"
                   }
