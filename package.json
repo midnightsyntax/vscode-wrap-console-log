@@ -114,7 +114,7 @@
                   "markdownDescription": "Enables custom prefix string based on language identifier. Default to `wrap-console-log.format.wrap.prefixString` if language identifier is not specified.",
                   "type": "object",
                   "default": {
-                    "shellscript": "echo '$var:' $var",
+                    "shellscript": "echo '$var:' $$var",
                     "rust": "println!(\"$var: {}\", $var);",
                     "ruby": "puts \"$name: #{$name}\"",
                     "go": "fmt.Println(\"$var:\", $var)"
