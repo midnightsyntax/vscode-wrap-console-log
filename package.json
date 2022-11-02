@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/midnightsyntax/vscode-wrap-console-log"
     },
-    "version": "1.7.3",
+    "version": "1.7.4",
     "publisher": "midnightsyntax",
     "icon": "images/icon.png",
     "engines": {
@@ -109,6 +109,16 @@
                     "markdownDescription": "Enables custom control of the prefix log string. Use `$func` to specify the function name defined by [`Wrap Function Name`](#wrap-console-log.format.text.prefixFunctionName) and `$var` to specify the variable/text to log. `$var` can be specified **one** or **multible** times. ",
                     "type": "string",
                     "default": "$func('$var:', $var)"
+                },
+                "wrap-console-log.format.wrap.prefixStringLanguages": {
+                  "markdownDescription": "Enables custom prefix string based on language identifier. Default to `wrap-console-log.format.wrap.prefixString` if language identifier is not specified.",
+                  "type": "object",
+                  "default": {
+                    "shellscript": "echo '$var:' $var",
+                    "rust": "println!(\"$var: {}\", $var)",
+                    "ruby": "puts \"$name: #{$name}\"",
+                    "go": "fmt.Println(\"$var:\", $var)"
+                  }
                 }
             }
         },
