@@ -47,6 +47,18 @@
                     "description": "Run VSCode 'Format Document' after every log command.",
                     "default": false
                 },
+                "wrap-console-log.languageSkipWordSeparator": {
+                    "type": "object",
+                    "description": "Define language word separators to skip. E.g. for Javascript add '.' to automatically detect full variable references e.g. `object.var`",
+                    "default": {
+                        "javascript": [
+                            "."
+                        ],
+                        "typescript": [
+                            "."
+                        ]
+                    }
+                },
                 "wrap-console-log.configuration.emptyLineAction": {
                     "type": "string",
                     "enum": [
