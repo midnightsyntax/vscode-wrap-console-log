@@ -62,14 +62,13 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             let doc = currentEditor.document;
             let lineNumber = ran.start.line
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex
-            console.log('getSetting("languageSkipWordSeparator"):', getSetting("languageSkipWordSeparator"));
             const languageVarSeparators = getSetting("languageSkipWordSeparator")[doc.languageId];
 
             let item = doc.getText(ran)
 
             let wordPrefixChar = getWordPrefixChar(ran);
-            console.log('languageSeparators:', languageVarSeparators);
-            while (languageVarSeparators.includes(wordPrefixChar)) {
+
+            while (languageVarSeparators?.includes(wordPrefixChar)) {
                 const prefixWordRan = currentEditor.document.getWordRangeAtPosition(ran.start.translate(0, -2))
                 ran = new vscode.Range(prefixWordRan.start, ran.end)
                 item = doc.getText(ran)
