@@ -62,9 +62,22 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
             let doc = currentEditor.document;
             let lineNumber = ran.start.line
             let idx = doc.lineAt(lineNumber).firstNonWhitespaceCharacterIndex
+            const languageVarSeparators = getSetting("languageSkipWordSeparator")[doc.languageId];
+
+            let item = doc.getText(ran)
+
+            let wordPrefixChar = getWordPrefixChar(ran);
+
+            while (languageVarSeparators?.includes(wordPrefixChar)) {
+                const prefixWordRan = currentEditor.document.getWordRangeAtPosition(ran.start.translate(0, -2))
+                ran = new vscode.Range(prefixWordRan.start, ran.end)
+                item = doc.getText(ran)
+                wordPrefixChar = getWordPrefixChar(ran);
+            }
+
             let wrapData = { 
                 txt: undefined,
-                item: doc.getText(ran),
+                item: item,
                 doc: doc,
                 ran: ran,
                 idx: idx,
@@ -282,6 +295,14 @@ function handle(target: Wrap, prefix?: boolean, input?: boolean, formatAs?: Form
     });
 
 }
+
+/** Get character just before range. Returns undefined for empty and start of line. */
+function getWordPrefixChar (ran: vscode.Range) {
+    if (ran.start.character == 0) return undefined;
+    const charRange = new vscode.Range(ran.start.translate(0, -1), ran.start);
+    const wordPrefix = currentEditor.document.getText(charRange);
+    return wordPrefix === ' ' ? undefined : wordPrefix;
+};
 
 function getSetting(setting: string) {
     var spl = setting.split('.');
